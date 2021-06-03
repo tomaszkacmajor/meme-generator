@@ -6,7 +6,10 @@ class MemeEngine:
     """"""
 
     def __init__(self, output_dir):
-        """"""
+        """Initialize an object.
+
+        @param output_dir:
+        """
         self.output_dir = output_dir
 
     MAX_WIDTH = 500
@@ -32,6 +35,6 @@ class MemeEngine:
             d = ImageDraw.Draw(img)
             d.text((10, 60), text, font=fnt, fill=(255, 255, 255))
             d.text((10, 80), author, font=fnt, fill=(255, 255, 255))
-            img.save(self.output_dir)
+            img.save(self.output_dir + "meme.jpg")
 
         return self.output_dir
