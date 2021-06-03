@@ -82,11 +82,11 @@ class TextIngestor(IngestorInterface):
 
         quotes = []
         with open(path) as f:
-            lines = f.readlines()
-            for l in lines:
-                parse = l.text.split('-')
-                new_quote = QuoteModel(parse[0].strip(), parse[1].strip())
-                quotes.append(new_quote)
+            for line in f.readlines():
+                if len(line) > 0:
+                    parse = line.text.split('-')
+                    new_quote = QuoteModel(parse[0].strip(), parse[1].strip())
+                    quotes.append(new_quote)
 
         return quotes
 

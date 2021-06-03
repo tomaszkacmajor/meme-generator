@@ -1,3 +1,4 @@
+PIL
 pandas
 docx
 certifi==2021.5.30
