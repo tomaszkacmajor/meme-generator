@@ -8,6 +8,7 @@ import subprocess
 import pandas
 import docx
 
+
 class IngestorInterface(ABC):
     """Interface for all ingestors ingesting quotes."""
 
@@ -84,7 +85,7 @@ class TextIngestor(IngestorInterface):
         with open(path) as f:
             for line in f.readlines():
                 if len(line) > 0:
-                    parse = line.text.split('-')
+                    parse = line.split('-')
                     new_quote = QuoteModel(parse[0].strip(), parse[1].strip())
                     quotes.append(new_quote)
 
