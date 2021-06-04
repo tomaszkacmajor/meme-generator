@@ -1,7 +1,7 @@
 """Module providing the engine for memes generation."""
 import random
-
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image, ImageDraw
+from QuoteEngine import QuoteModel
 
 
 class MemeEngine:
@@ -15,18 +15,14 @@ class MemeEngine:
         self.output_dir = output_dir
 
     MAX_IMG_WIDTH = 500
-    FONT_SIZE = random.randint(20, 30)
     DIST_BETWEEN_TEXT_AND_AUTHOR = 40
     MARGINS_SIZE = 10
-    font_quote = ImageFont.truetype("./fonts/LilitaOne-Regular.ttf", FONT_SIZE)
-    font_author = ImageFont.truetype("./fonts/SansitaSwashed-Regular.ttf", FONT_SIZE)
 
-    def make_meme(self, img_path: str, text: str, author: str, width=500) -> str:
-        """Generate meme based on provided image and text.
+    def make_meme(self, img_path: str, quote: QuoteModel, width=500) -> str:
+        """Generate meme based on provided image and quote.
 
         @param img_path: Image on which the text will be placed.
-        @param text: Text placed on the image.
-        @param author: Author of the citation, placed below the text.
+        @param quote: Text placed on the image.
         @param width: Desired width of the image.
         @return: Path to the generated meme image.
         """
@@ -40,23 +36,23 @@ class MemeEngine:
         with Image.open(img_path) as img:
             img = proportional_resize(img, width)
             d = ImageDraw.Draw(img)
-            pos_x, pos_y = self.get_random_text_pos(img, max(len(text), len(author)))
-            d.text((pos_x, pos_y), text, font=self.font_quote, fill=(255, 255, 255))
-            d.text((pos_x, pos_y + self.DIST_BETWEEN_TEXT_AND_AUTHOR), author, font=self.font_author, fill=(255, 255, 255))
+            pos_x, pos_y = self.get_random_text_pos(img, quote)
+            d.text((pos_x, pos_y), quote.body, font=quote.font_quote, fill=(255, 255, 255))
+            d.text((pos_x, pos_y + self.DIST_BETWEEN_TEXT_AND_AUTHOR), quote.author, font=quote.font_author, fill=(255, 255, 255))
             img.save(output_path)
 
         return output_path
 
-    def get_random_text_pos(self, img: Image, max_text_len: int) -> (int, int):
+    def get_random_text_pos(self, img: Image, quote: QuoteModel) -> (int, int):
         """Get random text position for the image, considering its size and margins.
 
         @param img: Image on which the text will be drawn.
-        @param max_text_len: Maximum length of lines in the text to be drawn.
+        @param quote: Quote to be drawn.
         @return: Tuple of (x, y) position of the text.
         """
-
         # Experimentally chosen average width of one letter.
-        width_of_a_letter = self.FONT_SIZE / 2
+        width_of_a_letter = quote.font_size / 2
+        max_text_len = max(len(quote.body), len(quote.author))
 
         width = img.size[0]
         height = img.size[1]
