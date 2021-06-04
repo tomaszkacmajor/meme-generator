@@ -23,6 +23,7 @@ class MemeEngine:
         @param width:
         @return:
         """
+        output_path = self.output_dir + "/meme.jpg"
         if width > self.MAX_WIDTH:
             width = self.MAX_WIDTH
 
@@ -34,7 +35,7 @@ class MemeEngine:
             fnt = ImageFont.truetype("./fonts/LilitaOne-Regular.ttf", 40)
             d = ImageDraw.Draw(img)
             d.text((10, 60), text, font=fnt, fill=(255, 255, 255))
-            d.text((10, 80), author, font=fnt, fill=(255, 255, 255))
-            img.save(self.output_dir + "meme.jpg")
+            d.text((10, 100), author, font=fnt, fill=(255, 255, 255))
+            img.save(output_path)
 
-        return self.output_dir
+        return output_path
