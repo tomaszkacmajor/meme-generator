@@ -1,4 +1,6 @@
 """Module with QuoteModel class."""
+
+
 class QuoteModel:
     """A class encapsulating body and author of a quote."""
 

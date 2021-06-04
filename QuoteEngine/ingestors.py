@@ -49,6 +49,7 @@ class DocxIngestor(IngestorInterface):
 
         return quotes
 
+
 class CSVIngestor(IngestorInterface):
     """Ingestor parsing CSV files."""
 
@@ -91,6 +92,7 @@ class TextIngestor(IngestorInterface):
 
         return quotes
 
+
 class PDFIngestor(IngestorInterface):
     """Ingestor parsing PDF files."""
 
@@ -103,7 +105,7 @@ class PDFIngestor(IngestorInterface):
             raise Exception('cannot ingest exception')
 
         tmp = './tmp/tmp.txt'
-        call = subprocess.call(['pdftotext', "-layout", path, tmp])
+        subprocess.call(['pdftotext', "-layout", path, tmp])
 
         file_ref = open(tmp, "r")
         quotes = []

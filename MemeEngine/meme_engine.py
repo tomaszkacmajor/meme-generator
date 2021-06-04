@@ -17,8 +17,7 @@ class MemeEngine:
     MAX_IMG_WIDTH = 500
     FONT_SIZE = random.randint(20, 30)
     DIST_BETWEEN_TEXT_AND_AUTHOR = 40
-
-
+    MARGINS_SIZE = 10
 
     def make_meme(self, img_path: str, text: str, author: str, width=500) -> str:
         """Generate meme based on provided image and text.
@@ -31,7 +30,7 @@ class MemeEngine:
         """
         output_path = self.output_dir + "/meme.jpg"
 
-        #The image width cannot be larger than 'MAX_IMG_WIDTH'
+        # The image width cannot be larger than 'MAX_IMG_WIDTH'
         if width > self.MAX_IMG_WIDTH:
             width = self.MAX_IMG_WIDTH
 
@@ -54,16 +53,15 @@ class MemeEngine:
         @param max_text_len: Maximum length of lines in the text to be drawn.
         @return: Tuple of (x, y) position of the text.
         """
-        MARGINS_SIZE = 10
 
-        # Experimantally chosen average width of one letter.
+        # Experimentally chosen average width of one letter.
         width_of_a_letter = self.FONT_SIZE / 2
 
         width = img.size[0]
         height = img.size[1]
         text_size = max_text_len * width_of_a_letter
-        x_random_range = (MARGINS_SIZE, width - MARGINS_SIZE - text_size)
-        y_random_range = (MARGINS_SIZE, height - MARGINS_SIZE - self.DIST_BETWEEN_TEXT_AND_AUTHOR)
+        x_random_range = (self.MARGINS_SIZE, width - self.MARGINS_SIZE - text_size)
+        y_random_range = (self.MARGINS_SIZE, height - self.MARGINS_SIZE - self.DIST_BETWEEN_TEXT_AND_AUTHOR)
 
         return random.randint(*x_random_range), random.randint(*y_random_range)
 
