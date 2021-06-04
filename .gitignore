@@ -3,3 +3,5 @@
 *.pyc
 tmp/**
 !tmp/.gitkeep
+static/**
+!static/.gitkeep

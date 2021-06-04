@@ -18,6 +18,8 @@ class MemeEngine:
     FONT_SIZE = random.randint(20, 30)
     DIST_BETWEEN_TEXT_AND_AUTHOR = 40
     MARGINS_SIZE = 10
+    font_quote = ImageFont.truetype("./fonts/LilitaOne-Regular.ttf", FONT_SIZE)
+    font_author = ImageFont.truetype("./fonts/SansitaSwashed-Regular.ttf", FONT_SIZE)
 
     def make_meme(self, img_path: str, text: str, author: str, width=500) -> str:
         """Generate meme based on provided image and text.
@@ -28,7 +30,8 @@ class MemeEngine:
         @param width: Desired width of the image.
         @return: Path to the generated meme image.
         """
-        output_path = self.output_dir + "/meme.jpg"
+        meme_no = random.randint(0, 10000)
+        output_path = self.output_dir + "/meme_" + str(meme_no) + ".jpg"
 
         # The image width cannot be larger than 'MAX_IMG_WIDTH'
         if width > self.MAX_IMG_WIDTH:
@@ -36,12 +39,10 @@ class MemeEngine:
 
         with Image.open(img_path) as img:
             img = proportional_resize(img, width)
-            fnt = ImageFont.truetype("./fonts/LilitaOne-Regular.ttf", self.FONT_SIZE)
             d = ImageDraw.Draw(img)
-
             pos_x, pos_y = self.get_random_text_pos(img, max(len(text), len(author)))
-            d.text((pos_x, pos_y), text, font=fnt, fill=(255, 255, 255))
-            d.text((pos_x, pos_y + self.DIST_BETWEEN_TEXT_AND_AUTHOR), author, font=fnt, fill=(255, 255, 255))
+            d.text((pos_x, pos_y), text, font=self.font_quote, fill=(255, 255, 255))
+            d.text((pos_x, pos_y + self.DIST_BETWEEN_TEXT_AND_AUTHOR), author, font=self.font_author, fill=(255, 255, 255))
             img.save(output_path)
 
         return output_path
@@ -59,11 +60,18 @@ class MemeEngine:
 
         width = img.size[0]
         height = img.size[1]
-        text_size = max_text_len * width_of_a_letter
-        x_random_range = (self.MARGINS_SIZE, width - self.MARGINS_SIZE - text_size)
-        y_random_range = (self.MARGINS_SIZE, height - self.MARGINS_SIZE - self.DIST_BETWEEN_TEXT_AND_AUTHOR)
+        text_size = int(max_text_len * width_of_a_letter)
 
-        return random.randint(*x_random_range), random.randint(*y_random_range)
+        min_pos_x = self.MARGINS_SIZE
+        min_pos_y = self.MARGINS_SIZE
+        max_pos_x = width - min_pos_x - text_size
+        max_pos_y = height - min_pos_y - self.DIST_BETWEEN_TEXT_AND_AUTHOR
+        if max_pos_x < min_pos_x:
+            max_pos_x = min_pos_x + 1
+        if max_pos_y < min_pos_y:
+            max_pos_y = min_pos_y + 1
+
+        return random.randint(min_pos_x, max_pos_x), random.randint(min_pos_y, max_pos_y)
 
 
 def proportional_resize(img: Image, width: int) -> Image:
