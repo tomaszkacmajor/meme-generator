@@ -2,8 +2,9 @@ import random
 import os
 import requests
 from flask import Flask, render_template, abort, request
-from QuoteEngine import Ingestor
+from QuoteEngine import Ingestor, QuoteModel
 from MemeEngine import MemeEngine
+import urllib.request
 
 app = Flask(__name__)
 
@@ -53,15 +54,15 @@ def meme_form():
 @app.route('/create', methods=['POST'])
 def meme_post():
     """ Create a user defined meme """
+    path = request.form.get('image_url')
+    body = request.form.get('body')
+    author = request.form.get('author')
 
-    # @TODO:
-    # 1. Use requests to save the image from the image_url
-    #    form param to a temp local file.
-    # 2. Use the meme object to generate a meme using this temp
-    #    file and the body and author form paramaters.
-    # 3. Remove the temporary saved image.
-
-    path = None
+    tmp_img_path = "./tmp/tmp.jpg"
+    urllib.request.urlretrieve(path, tmp_img_path)
+    quote = QuoteModel(body, author)
+    path = meme.make_meme(tmp_img_path, quote)
+    os.remove(tmp_img_path)
 
     return render_template('meme.html', path=path)
 
