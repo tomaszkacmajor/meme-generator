@@ -1,3 +1,4 @@
+"""Main module for the flask application user interface."""
 import random
 import os
 import requests
@@ -12,8 +13,7 @@ meme = MemeEngine('./static')
 
 
 def setup():
-    """ Load all resources """
-
+    """Load all resources."""
     quote_files = ['./_data/DogQuotes/DogQuotesTXT.txt',
                    './_data/DogQuotes/DogQuotesDOCX.docx',
                    './_data/DogQuotes/DogQuotesPDF.pdf',
@@ -37,7 +37,7 @@ quotes, imgs = setup()
 
 @app.route('/')
 def meme_rand():
-    """ Generate a random meme """
+    """Generate a random meme."""
     img = random.choice(imgs)
     quote = random.choice(quotes)
 
@@ -47,13 +47,13 @@ def meme_rand():
 
 @app.route('/create', methods=['GET'])
 def meme_form():
-    """ User input for meme information """
+    """User input for meme information."""
     return render_template('meme_form.html')
 
 
 @app.route('/create', methods=['POST'])
 def meme_post():
-    """ Create a user defined meme """
+    """Create a user defined meme."""
     path = request.form.get('image_url')
     body = request.form.get('body')
     author = request.form.get('author')
@@ -61,7 +61,7 @@ def meme_post():
     tmp_img_path = "./tmp/tmp.jpg"
     urllib.request.urlretrieve(path, tmp_img_path)
     quote = QuoteModel(body, author)
-    path = meme.make_meme(tmp_img_path, quote)
+    path = meme.make_meme(tmp_img_path, quote.body, quote.author)
     os.remove(tmp_img_path)
 
     return render_template('meme.html', path=path)

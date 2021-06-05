@@ -1,6 +1,5 @@
 """Module providing the engine for memes generation."""
 import random
-
 from PIL import Image, ImageDraw, ImageFont
 
 
@@ -15,13 +14,18 @@ class MemeEngine:
         self.output_dir = output_dir
 
     MAX_IMG_WIDTH = 500
-    FONT_SIZE = random.randint(20, 30)
     DIST_BETWEEN_TEXT_AND_AUTHOR = 40
     MARGINS_SIZE = 10
-    font_quote = ImageFont.truetype("./fonts/LilitaOne-Regular.ttf", FONT_SIZE)
-    font_author = ImageFont.truetype("./fonts/SansitaSwashed-Regular.ttf", FONT_SIZE)
+    FONT_SIZE = 25
+    QUOTE_FONT = "./fonts/LilitaOne-Regular.ttf"
+    AUTHOR_FONT = "./fonts/SansitaSwashed-Regular.ttf"
+    FONT_COLOR = (255, 255, 255)
 
-    def make_meme(self, img_path: str, text: str, author: str, width=500) -> str:
+    _font_quote = ImageFont.truetype(QUOTE_FONT, FONT_SIZE)
+    _font_author = ImageFont.truetype(AUTHOR_FONT, FONT_SIZE)
+
+    def make_meme(self, img_path: str, text: str,
+                  author: str, width=500) -> str:
         """Generate meme based on provided image and text.
 
         @param img_path: Image on which the text will be placed.
@@ -40,21 +44,24 @@ class MemeEngine:
         with Image.open(img_path) as img:
             img = proportional_resize(img, width)
             d = ImageDraw.Draw(img)
-            pos_x, pos_y = self.get_random_text_pos(img, max(len(text), len(author)))
-            d.text((pos_x, pos_y), text, font=self.font_quote, fill=(255, 255, 255))
-            d.text((pos_x, pos_y + self.DIST_BETWEEN_TEXT_AND_AUTHOR), author, font=self.font_author, fill=(255, 255, 255))
+            pos = self.get_random_text_pos(img, text, author)
+            d.text(pos, text, font=self._font_quote, fill=self.FONT_COLOR)
+            pos = pos[0], pos[1] + self.DIST_BETWEEN_TEXT_AND_AUTHOR
+            d.text(pos, author, font=self._font_author, fill=self.FONT_COLOR)
             img.save(output_path)
 
         return output_path
 
-    def get_random_text_pos(self, img: Image, max_text_len: int) -> (int, int):
-        """Get random text position for the image, considering its size and margins.
+    def get_random_text_pos(self, img: Image, text: str,
+                            author: str) -> (int, int):
+        """Get random text pos for the image, considering its size and margins.
 
         @param img: Image on which the text will be drawn.
-        @param max_text_len: Maximum length of lines in the text to be drawn.
+        @param text: Body of the text to be drawn.
+        @param author: Author of the text to be drawn.
         @return: Tuple of (x, y) position of the text.
         """
-
+        max_text_len = max(len(text), len(author))
         # Experimentally chosen average width of one letter.
         width_of_a_letter = self.FONT_SIZE / 2
 
@@ -71,7 +78,10 @@ class MemeEngine:
         if max_pos_y < min_pos_y:
             max_pos_y = min_pos_y + 1
 
-        return random.randint(min_pos_x, max_pos_x), random.randint(min_pos_y, max_pos_y)
+        pos_x = random.randint(min_pos_x, max_pos_x)
+        pos_y = random.randint(min_pos_y, max_pos_y)
+
+        return pos_x, pos_y
 
 
 def proportional_resize(img: Image, width: int) -> Image:

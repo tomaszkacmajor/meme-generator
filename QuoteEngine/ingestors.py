@@ -16,7 +16,7 @@ class IngestorInterface(ABC):
 
     @classmethod
     def can_ingest(cls, path: str) -> bool:
-        """Perform a test if a concrete object of 'IngestorInterface' can ingest the specified file."""
+        """Perform a test if the object can ingest the specified file."""
         ext = path.split('.')[-1]
         return ext in cls.allowed_extensions
 
@@ -38,15 +38,8 @@ class DocxIngestor(IngestorInterface):
         if not cls.can_ingest(path):
             raise Exception('cannot ingest exception')
 
-        quotes = []
         doc = docx.Document(path)
-
-        for para in doc.paragraphs:
-            if para.text != "":
-                parse = para.text.split('-')
-                new_quote = QuoteModel(parse[0].strip(" \""), parse[1].strip(" \""))
-                quotes.append(new_quote)
-
+        quotes = simple_parse_lines([line.text for line in doc.paragraphs])
         return quotes
 
 
@@ -82,13 +75,8 @@ class TextIngestor(IngestorInterface):
         if not cls.can_ingest(path):
             raise Exception('cannot ingest exception')
 
-        quotes = []
         with open(path) as f:
-            for line in f.readlines():
-                if len(line) > 0:
-                    parse = line.split('-')
-                    new_quote = QuoteModel(parse[0].strip(), parse[1].strip())
-                    quotes.append(new_quote)
+            quotes = simple_parse_lines(f.readlines())
 
         return quotes
 
@@ -107,16 +95,10 @@ class PDFIngestor(IngestorInterface):
         tmp = './tmp/tmp.txt'
         subprocess.call(['pdftotext', "-layout", path, tmp])
 
-        file_ref = open(tmp, "r")
-        quotes = []
-        for line in file_ref.readlines():
-            line = line.strip('\n\r').strip()
-            if len(line) > 0:
-                parsed = line.split('-')
-                new_quote = QuoteModel(parsed[0].strip(" \""), parsed[1].strip(" \""))
-                quotes.append(new_quote)
+        f = open(tmp, "r")
+        quotes = simple_parse_lines(f.readlines())
 
-        file_ref.close()
+        f.close()
         os.remove(tmp)
         return quotes
 
@@ -128,7 +110,26 @@ class Ingestor(IngestorInterface):
 
     @classmethod
     def parse(cls, path: str) -> List[QuoteModel]:
-        """Implement a parse method where appropriate ingestor is selected based on file type."""
+        """Appropriate ingestor is selected based on file type."""
         for importer in cls.importers:
             if importer.can_ingest(path):
                 return importer.parse(path)
+
+
+def simple_parse_lines(lines: List[str]) -> List[QuoteModel]:
+    """Help function for simple lines parsing.
+
+    @param lines: List of lines to be parsed.
+    @return: List of extracted QuoteModel objects.
+    """
+    quotes = []
+
+    for line in lines:
+        line = line.strip('\n\r').strip()
+        if len(line) > 0:
+            parse = line.split('-')
+            new_quote = QuoteModel(parse[0].strip(" \""),
+                                   parse[1].strip(" \""))
+            quotes.append(new_quote)
+
+    return quotes
