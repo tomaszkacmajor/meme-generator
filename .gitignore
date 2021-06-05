@@ -3,5 +3,9 @@
 *.pyc
 tmp/**
 !tmp/readme_example_1
+!tmp/readme_example_2
+!tmp/readme_example_3
+!tmp/readme_example_4
+!tmp/readme_example_5
 static/**
 !static/.gitkeep
