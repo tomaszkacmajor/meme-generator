@@ -1,7 +1,7 @@
 """Module providing the engine for memes generation."""
 import random
 from PIL import Image, ImageDraw, ImageFont
-
+import textwrap
 
 class MemeEngine:
     """Class for generating memes."""
@@ -41,24 +41,32 @@ class MemeEngine:
         if width > self.MAX_IMG_WIDTH:
             width = self.MAX_IMG_WIDTH
 
+        wrapper = textwrap.TextWrapper(width=25)
+        word_list = wrapper.wrap(text=text)
+        caption_new = ''
+        for ii in word_list[:-1]:
+            caption_new = caption_new + ii + '\n'
+        caption_new += word_list[-1]
+
         with Image.open(img_path) as img:
             img = proportional_resize(img, width)
             d = ImageDraw.Draw(img)
-            pos = self.get_random_text_pos(img, text, author)
-            d.text(pos, text, font=self._font_quote, fill=self.FONT_COLOR)
-            pos = pos[0], pos[1] + self.DIST_BETWEEN_TEXT_AND_AUTHOR
+            pos = self.get_random_text_pos(img, text, author, len(word_list))
+            d.text(pos, caption_new, font=self._font_quote, fill=self.FONT_COLOR)
+            pos = pos[0], pos[1] + self.DIST_BETWEEN_TEXT_AND_AUTHOR * len(word_list)
             d.text(pos, author, font=self._font_author, fill=self.FONT_COLOR)
             img.save(output_path)
 
         return output_path
 
     def get_random_text_pos(self, img: Image, text: str,
-                            author: str) -> (int, int):
+                            author: str, no_body_lines: str) -> (int, int):
         """Get random text pos for the image, considering its size and margins.
 
         @param img: Image on which the text will be drawn.
         @param text: Body of the text to be drawn.
         @param author: Author of the text to be drawn.
+        @param no_body_lines: Number of lines for a body text.
         @return: Tuple of (x, y) position of the text.
         """
         max_text_len = max(len(text), len(author))
@@ -72,7 +80,7 @@ class MemeEngine:
         min_pos_x = self.MARGINS_SIZE
         min_pos_y = self.MARGINS_SIZE
         max_pos_x = width - min_pos_x - text_size
-        max_pos_y = height - min_pos_y - self.DIST_BETWEEN_TEXT_AND_AUTHOR
+        max_pos_y = height - min_pos_y - self.DIST_BETWEEN_TEXT_AND_AUTHOR*no_body_lines
         if max_pos_x < min_pos_x:
             max_pos_x = min_pos_x + 1
         if max_pos_y < min_pos_y:
