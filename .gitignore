@@ -2,6 +2,7 @@
 /.idea/**
 *.pyc
 tmp/**
+!tmp/.gitkeep
 !tmp/readme_example_1
 !tmp/readme_example_2
 !tmp/readme_example_3
