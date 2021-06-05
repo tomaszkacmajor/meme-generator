@@ -2,6 +2,6 @@
 /.idea/**
 *.pyc
 tmp/**
-!tmp/.gitkeep
+!tmp/readme_example_1
 static/**
 !static/.gitkeep
