@@ -59,10 +59,13 @@ def meme_post():
     author = request.form.get('author')
 
     tmp_img_path = "./tmp/tmp.jpg"
-    urllib.request.urlretrieve(path, tmp_img_path)
-    quote = QuoteModel(body, author)
-    path = meme.make_meme(tmp_img_path, quote.body, quote.author)
-    os.remove(tmp_img_path)
+    try:
+        urllib.request.urlretrieve(path, tmp_img_path)
+        quote = QuoteModel(body, author)
+        path = meme.make_meme(tmp_img_path, quote.body, quote.author)
+        os.remove(tmp_img_path)
+    except Exception as e:
+        print(e)
 
     return render_template('meme.html', path=path)
 
