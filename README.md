@@ -51,3 +51,9 @@ form, "Create Meme!" should be clicked to generate a meme.
 
 ![alt text](./tmp/readme_example_4.jpg)
 ![alt text](./tmp/readme_example_5.jpg)
+
+#### Project setup
+
+To setup the project just run:
+
+`pip install requirements.txt`
