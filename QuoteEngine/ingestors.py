@@ -128,8 +128,9 @@ def simple_parse_lines(lines: List[str]) -> List[QuoteModel]:
         line = line.strip('\n\r').strip()
         if len(line) > 0:
             parse = line.split('-')
-            new_quote = QuoteModel(parse[0].strip(" \""),
-                                   parse[1].strip(" \""))
-            quotes.append(new_quote)
+            if len(parse) > 1:
+                new_quote = QuoteModel(parse[0].strip(" \""),
+                                       parse[1].strip(" \""))
+                quotes.append(new_quote)
 
     return quotes
