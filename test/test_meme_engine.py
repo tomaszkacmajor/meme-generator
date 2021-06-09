@@ -41,5 +41,19 @@ class MemeEngineTests(unittest.TestCase):
         self.assertEqual(wrapped_text, expected_wrapped_text)
         self.assertEqual(no_lines, expected_no_lines)
 
+    @parameterized.expand([
+        [500, 500, 2, 300, (10, 190), (10, 400)],
+        [500, 500, 1, 600, (10, 11), (10, 425)]
+    ])
+    def test_get_pos_ranges(self, width, height, no_body_lines, max_text_width,
+                            expected_x_range, expected_y_range):
+        meme_engine = MemeEngine("")
+        meme_engine.TEXT_AUTH_DIST = 40
+        meme_engine.MARGINS_SIZE = 10
+        meme_engine.FONT_SIZE = 25
+        x_range, y_range = meme_engine.get_pos_ranges(width, height, no_body_lines, max_text_width)
+        self.assertEqual(x_range, expected_x_range)
+        self.assertEqual(y_range, expected_y_range)
+
 if __name__ == '__main__':
     unittest.main()
