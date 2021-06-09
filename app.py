@@ -1,8 +1,7 @@
 """Main module for the flask application user interface."""
 import random
 import os
-import requests
-from flask import Flask, render_template, abort, request
+from flask import Flask, render_template, request
 from QuoteEngine import Ingestor, QuoteModel
 from MemeEngine import MemeEngine
 import urllib.request
@@ -41,7 +40,7 @@ def meme_rand():
     img = random.choice(imgs)
     quote = random.choice(quotes)
 
-    path = meme.make_meme(img, quote.body, quote.author)
+    path = meme.make_meme(img, quote)
     return render_template('meme.html', path=path)
 
 
@@ -62,7 +61,7 @@ def meme_post():
     try:
         urllib.request.urlretrieve(path, tmp_img_path)
         quote = QuoteModel(body, author)
-        path = meme.make_meme(tmp_img_path, quote.body, quote.author)
+        path = meme.make_meme(tmp_img_path, quote)
         os.remove(tmp_img_path)
     except Exception as e:
         print(e)

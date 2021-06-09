@@ -3,6 +3,8 @@ import random
 from PIL import Image, ImageDraw, ImageFont
 import textwrap
 
+from QuoteEngine import QuoteModel
+
 
 class MemeEngine:
     """Class for generating memes."""
@@ -18,6 +20,7 @@ class MemeEngine:
     DIST_BETWEEN_TEXT_AND_AUTHOR = 40
     MARGINS_SIZE = 10
     FONT_SIZE = 25
+    WRAP_SIZE = 25
     QUOTE_FONT = "./fonts/LilitaOne-Regular.ttf"
     AUTHOR_FONT = "./fonts/SansitaSwashed-Regular.ttf"
     FONT_COLOR = (255, 255, 255)
@@ -25,13 +28,12 @@ class MemeEngine:
     _font_quote = ImageFont.truetype(QUOTE_FONT, FONT_SIZE)
     _font_author = ImageFont.truetype(AUTHOR_FONT, FONT_SIZE)
 
-    def make_meme(self, img_path: str, text: str,
-                  author: str, width=500) -> str:
+    def make_meme(self, img_path: str, quote: QuoteModel,
+                  width=500) -> str:
         """Generate meme based on provided image and text.
 
         @param img_path: Image on which the text will be placed.
-        @param text: Text placed on the image.
-        @param author: Author of the citation, placed below the text.
+        @param quote: Quote placed on the image.
         @param width: Desired width of the image.
         @return: Path to the generated meme image.
         """
@@ -42,46 +44,36 @@ class MemeEngine:
         if width > self.MAX_IMG_WIDTH:
             width = self.MAX_IMG_WIDTH
 
-        wrapper = textwrap.TextWrapper(width=25)
-        word_list = wrapper.wrap(text=text)
-        caption_new = ''
-        for ii in word_list[:-1]:
-            caption_new = caption_new + ii + '\n'
-        caption_new += word_list[-1]
+        text_body, no_lines = get_wrapped_text(quote.body, self.WRAP_SIZE)
+        text_width = self.get_max_text_width(quote)
 
         with Image.open(img_path) as img:
             img = proportional_resize(img, width)
             d = ImageDraw.Draw(img)
-            pos = self.get_random_text_pos(img, text, author, len(word_list))
-            d.text(pos, caption_new, font=self._font_quote, fill=self.FONT_COLOR)
-            pos = pos[0], pos[1] + self.DIST_BETWEEN_TEXT_AND_AUTHOR * len(word_list)
-            d.text(pos, author, font=self._font_author, fill=self.FONT_COLOR)
+            pos = self.get_random_text_pos(img, text_width, no_lines)
+            d.text(pos, text_body, font=self._font_quote, fill=self.FONT_COLOR)
+            pos = pos[0], pos[1] + self.DIST_BETWEEN_TEXT_AND_AUTHOR * no_lines
+            d.text(pos, quote.author, font=self._font_author, fill=self.FONT_COLOR)
             img.save(output_path)
 
         return output_path
 
-    def get_random_text_pos(self, img: Image, text: str,
-                            author: str, no_body_lines: str) -> (int, int):
+    def get_random_text_pos(self, img: Image, text_width: int,
+                            no_body_lines: str) -> (int, int):
         """Get random text pos for the image, considering its size and margins.
 
         @param img: Image on which the text will be drawn.
-        @param text: Body of the text to be drawn.
-        @param author: Author of the text to be drawn.
+        @param text_width: Max text width.
         @param no_body_lines: Number of lines for a body text.
         @return: Tuple of (x, y) position of the text.
         """
-        max_text_len = max(len(text), len(author))
-        # Experimentally chosen average width of one letter.
-        width_of_a_letter = self.FONT_SIZE / 2
-
         width = img.size[0]
         height = img.size[1]
-        text_size = int(max_text_len * width_of_a_letter)
 
         min_pos_x = self.MARGINS_SIZE
         min_pos_y = self.MARGINS_SIZE
-        max_pos_x = width - min_pos_x - text_size
-        max_pos_y = height - min_pos_y - self.DIST_BETWEEN_TEXT_AND_AUTHOR * no_body_lines
+        max_pos_x = width - self.MARGINS_SIZE - text_width
+        max_pos_y = height - self.MARGINS_SIZE - self.DIST_BETWEEN_TEXT_AND_AUTHOR * no_body_lines
         if max_pos_x < min_pos_x:
             max_pos_x = min_pos_x + 1
         if max_pos_y < min_pos_y:
@@ -91,6 +83,18 @@ class MemeEngine:
         pos_y = random.randint(min_pos_y, max_pos_y)
 
         return pos_x, pos_y
+
+    def get_max_text_width(self, quote: QuoteModel):
+        """Get max width of the text quote.
+
+        @param quote: quote of the meme
+        @return: Max width of the text
+        """
+        max_text_len = max(len(quote.body), len(quote.author))
+        # Experimentally chosen average width of one letter.
+        width_of_a_letter = self.FONT_SIZE / 2
+        text_size = int(max_text_len * width_of_a_letter)
+        return text_size
 
 
 def proportional_resize(img: Image, width: int) -> Image:
@@ -104,3 +108,21 @@ def proportional_resize(img: Image, width: int) -> Image:
     height = int((float(img.size[1]) * float(percent)))
     img = img.resize((width, height), Image.ANTIALIAS)
     return img
+
+
+def get_wrapped_text(text: str, width: int) -> (str, int):
+    """Wrap the text, given the max text width.
+
+    @param text: Text to be wrapped.
+    @param width: Max text width.
+    @return: Wrapped text and number of lines.
+    """
+    wrapper = textwrap.TextWrapper(width=width)
+    lines = wrapper.wrap(text=text)
+    wrapped_text = ''
+    for ii in lines[:-1]:
+        wrapped_text = wrapped_text + ii + '\n'
+    wrapped_text += lines[-1]
+    no_lines = len(lines)
+
+    return wrapped_text, no_lines
