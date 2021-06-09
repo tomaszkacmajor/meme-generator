@@ -3,6 +3,7 @@ import random
 from PIL import Image, ImageDraw, ImageFont
 import textwrap
 
+
 class MemeEngine:
     """Class for generating memes."""
 
@@ -80,7 +81,7 @@ class MemeEngine:
         min_pos_x = self.MARGINS_SIZE
         min_pos_y = self.MARGINS_SIZE
         max_pos_x = width - min_pos_x - text_size
-        max_pos_y = height - min_pos_y - self.DIST_BETWEEN_TEXT_AND_AUTHOR*no_body_lines
+        max_pos_y = height - min_pos_y - self.DIST_BETWEEN_TEXT_AND_AUTHOR * no_body_lines
         if max_pos_x < min_pos_x:
             max_pos_x = min_pos_x + 1
         if max_pos_y < min_pos_y:
